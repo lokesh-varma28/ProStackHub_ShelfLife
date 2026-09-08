@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { booksAPI } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const handleSearch = (e) => {
+    e.preventDefault();
+
+    const query = searchQuery.trim();
+
+    if (!query) return;
+
+    navigate(`/search?q=${encodeURIComponent(query)}`);
+  };
 
   const fetchBooks = async () => {
     try {
@@ -74,21 +85,36 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="welcome-actions">
-            <Link to="/search" className="btn btn-primary">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <span>Discover Books</span>
-            </Link>
-            <button onClick={logout} className="btn btn-secondary logout-banner-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
-              <span>Logout</span>
-            </button>
+            <form className="dashboard-search-form" onSubmit={handleSearch}>
+              <div className="dashboard-search-wrapper">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search books by title, author, or ISBN..."
+                  aria-label="Search books"
+                />
+
+                <button type="submit" className="btn btn-primary">
+                  Search
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
